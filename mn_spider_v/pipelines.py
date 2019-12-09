@@ -52,36 +52,37 @@ class NbaVsInfoPipeline(object):
         # print(item)
         # print("接受到yield数据")
         now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        # 无则插入，有则更新覆盖
-        res = mongo_conn[constants.DB][item["collection"]].find_one({"_id": item["item"]["_id"]})
-        if res:
-            mongo_conn[constants.DB][item["collection"]].update_one({"_id": res["_id"]}, {"$set": {"data": item["item"]["data"], "update_time": now_time}})
-        else:
-            # 当主页面任意一个集合都没有数据，且图文集合有数据时，生成赛前文本，并发送
-            teletext = mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].find_one({"_id": item["item"]["_id"]})
-            pog = mongo_conn[constants.DB]["mn_sports_qq_nba_pog"].find_one({"_id": item["item"]["_id"]})
-            score = mongo_conn[constants.DB]["mn_sports_qq_nba_score"].find_one({"_id": item["item"]["_id"]})
-            count = mongo_conn[constants.DB]["mn_sports_qq_nba_count"].find_one({"_id": item["item"]["_id"]})
-            vs_info = mongo_conn[constants.DB]["mn_sports_qq_nba_vs"].find_one({"_id": item["item"]["_id"]})
-            if not any([pog, score, count, vs_info]) and teletext:
-                with mysql_conn.cursor() as cursor:
-                    select_text = """
-                        select id from mn_sports_qq_nba_text_before_game where id = %(uuid)s
-                    """
-                    cursor.execute(select_text, {"uuid": item["item"]["_id"]})
-                    text_before_game = cursor.fetchone()
-                    if not text_before_game:
-                        # 生成文本
-                        text_before_game = nba_text_before(mongo_conn[constants.DB], item["item"]["_id"])
-                        if text_before_game:
-                            # 保存赛前文本到mysql
-                            save_text_before_game_to_mysql(item["item"]["_id"], text_before_game, item["item"]["home_team_name"], item["item"]["away_team_name"], item["item"]["start_time"])
-                            # 发送
-                            text_before_game = text_before_game.replace("<p>", "").replace("</p>", "\r\n")
-                            publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_before_game)
-            item["item"]["create_time"] = now_time
-            item["item"]["update_time"] = now_time
-            mongo_conn[constants.DB][item["collection"]].insert_one(item["item"])
+        if item["item"]["data"]:
+            # 无则插入，有则更新覆盖
+            res = mongo_conn[constants.DB][item["collection"]].find_one({"_id": item["item"]["_id"]})
+            if res:
+                mongo_conn[constants.DB][item["collection"]].update_one({"_id": res["_id"]}, {"$set": {"data": item["item"]["data"], "update_time": now_time}})
+            else:
+                # 当主页面任意一个集合都没有数据，且图文集合有数据时，生成赛前文本，并发送
+                teletext = mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].find_one({"_id": item["item"]["_id"]})
+                pog = mongo_conn[constants.DB]["mn_sports_qq_nba_pog"].find_one({"_id": item["item"]["_id"]})
+                score = mongo_conn[constants.DB]["mn_sports_qq_nba_score"].find_one({"_id": item["item"]["_id"]})
+                count = mongo_conn[constants.DB]["mn_sports_qq_nba_count"].find_one({"_id": item["item"]["_id"]})
+                vs_info = mongo_conn[constants.DB]["mn_sports_qq_nba_vs"].find_one({"_id": item["item"]["_id"]})
+                if not any([pog, score, count, vs_info]) and teletext:
+                    with mysql_conn.cursor() as cursor:
+                        select_text = """
+                            select id from mn_sports_qq_nba_text_before_game where id = %(uuid)s
+                        """
+                        cursor.execute(select_text, {"uuid": item["item"]["_id"]})
+                        text_before_game = cursor.fetchone()
+                        if not text_before_game:
+                            # 生成文本
+                            text_before_game = nba_text_before(mongo_conn[constants.DB], item["item"]["_id"])
+                            if text_before_game:
+                                # 保存赛前文本到mysql
+                                save_text_before_game_to_mysql(item["item"]["_id"], text_before_game, item["item"]["home_team_name"], item["item"]["away_team_name"], item["item"]["start_time"])
+                                # 发送
+                                text_before_game = text_before_game.replace("<p>", "").replace("</p>", "\r\n")
+                                publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_before_game)
+                item["item"]["create_time"] = now_time
+                item["item"]["update_time"] = now_time
+                mongo_conn[constants.DB][item["collection"]].insert_one(item["item"])
 
 
 class NbaTextKeysPipeline(object):
@@ -114,7 +115,6 @@ class NbaTextPipeline(object):
         :param spider:
         :return:
         """
-
         # mn_sports_qq_nba_teletext
         # mn_sports_qq_nba_text
         uuid = gen_nba_vs_uuid(item["home_team_name"], item["away_team_name"], item["start_time"])

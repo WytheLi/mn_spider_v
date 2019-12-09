@@ -21,16 +21,20 @@ while True:
     #     tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
     #     change_time(now_date, tomorrow)
 
+    print("######################### scrapy crawl nba_mid #########################")
     logger.info("scrapy crawl nba_mid")
     os.system("scrapy crawl nba_mid")
 
+    print("######################### scrapy crawl nba_vs_info #########################")
     logger.info("scrapy crawl nba_vs_info")
     os.system("scrapy crawl nba_vs_info")
 
+    print("######################### scrapy crawl nba_text_keys #########################")
     logger.info("scrapy crawl nba_text_keys")
     os.system("scrapy crawl nba_text_keys")
 
+    print("######################### scrapy crawl nba_text #########################")
     logger.info("scrapy crawl nba_text")
     os.system("scrapy crawl nba_text")
 
-    time.sleep(60)
+    time.sleep(300)

@@ -4,7 +4,7 @@
 # @Email   : wytheli168@163.com
 # @Time    : 19-12-9 上午9:34
 # @Description:
-from celery_tasks.app import celery_app
+from celery_tasks import celery_app
 from mn_spider_v.publish_content import TouTiaoLogin, TouTiaoPosted
 
 auth_user_list = []
@@ -39,3 +39,8 @@ def publish_text(username, password, content):
     # print(user.cookies)
     p = TouTiaoPosted(user.chromedriver, user.cookies)
     p.posted(content)
+
+
+# @celery_app.task(name="my_add")
+# def my_add(x, y):
+#     return x + y

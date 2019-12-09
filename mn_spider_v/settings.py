@@ -98,6 +98,9 @@ ITEM_PIPELINES = {
 # 设置日志等级
 # LOG_LEVEL = "WARNING"
 LOG_LEVEL = "ERROR"
+# 指定日志保存的文件
+LOG_FILE = "logs/scrapy.log"
 
 # selenium超时时间
 SELENIUM_TIMEOUT = 8
+

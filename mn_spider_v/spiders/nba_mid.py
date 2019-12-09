@@ -12,7 +12,11 @@ class NbaMidSpider(scrapy.Spider):
     # start_urls = ['http://matchweb.sports.qq.com/']
     start_urls = ['https://matchweb.sports.qq.com/matchUnion/list?today=2019-11-22&startTime=%s&endTime=%s&columnId=100000&index=3&isInit=true&timestamp=1574245675333&callback=fetchScheduleListCallback100000' % (constants.START_TIME, constants.END_TIME)]
     custom_settings = {
-        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaMidPipeline': 300}
+        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaMidPipeline': 300},
+
+        # 设置log日志
+        'LOG_LEVEL': 'ERROR',
+        'LOG_FILE': './logs/spider_nba_mid.log'
     }
 
     def parse(self, response):

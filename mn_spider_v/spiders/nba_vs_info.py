@@ -20,7 +20,11 @@ class NbaVsInfoSpider(scrapy.Spider):
             urls.append("https://sports.qq.com/kbsweb/game.htm?mid=%s&start_time=%s" % (sing_dict["data"]["mid"], sing_dict["data"]["startTime"]))
     start_urls = urls
     custom_settings = { # 指定管道
-        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaVsInfoPipeline': 301}
+        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaVsInfoPipeline': 301},
+
+        # 设置log日志
+        'LOG_LEVEL': 'ERROR',
+        'LOG_FILE': './logs/spider_nba__vs_info.log'
     }
 
     def parse(self, response):
@@ -126,59 +130,60 @@ class NbaVsInfoSpider(scrapy.Spider):
         print(pog_backboard_both)
 
         pog_data = {}  # 存储本场最佳数据
-        # 主队最佳分数
-        home_team_pog_goal_score = pog_goal_both[2]
-        home_team_pog_goal_number_name = pog_goal_both[0].strip()
-        home_team_pog_goal_name = home_team_pog_goal_number_name.split("-")[1] if len(home_team_pog_goal_number_name.split("-")) == 2 else home_team_pog_goal_number_name.split("-")[0]
-        home_team_pog_goal_number = home_team_pog_goal_number_name.split("-")[0] if len(home_team_pog_goal_number_name.split("-")) == 2 else ""
-        # 主队最佳助攻
-        home_team_pog_assist_num = pog_assist_both[2]
-        home_team_pog_assist_number_name = pog_assist_both[0].strip()
-        home_team_pog_assist_name = home_team_pog_assist_number_name.split("-")[1] if len(home_team_pog_assist_number_name.split("-")) == 2 else home_team_pog_assist_number_name.split("-")[0]
-        home_team_pog_assist_number = home_team_pog_assist_number_name.split("-")[0] if len(home_team_pog_assist_number_name.split("-")) == 2 else ""
-        # 主队最佳篮板
-        home_team_pog_backboard_num = pog_backboard_both[2]
-        home_team_pog_backboard_number_name = pog_backboard_both[0].strip()
-        home_team_pog_backboard_name = home_team_pog_backboard_number_name.split("-")[1] if len(
-            home_team_pog_backboard_number_name.split("-")) == 2 else home_team_pog_backboard_number_name.split("-")[0]
-        home_team_pog_backboard_number = home_team_pog_backboard_number_name.split("-")[0] if len(
-            home_team_pog_backboard_number_name.split("-")) == 2 else ""
-        # 客场最佳分数
-        away_team_pog_goal_score = pog_goal_both[6]
-        away_team_pog_goal_number_name = pog_goal_both[8].strip()
-        away_team_pog_goal_name = away_team_pog_goal_number_name.split("-")[1] if len(away_team_pog_goal_number_name.split("-")) else away_team_pog_goal_number_name.split("-")[0]
-        away_team_pog_goal_number = away_team_pog_goal_number_name.split("-")[0] if len(away_team_pog_goal_number_name.split("-")) else ""
-        # 客场最佳助攻
-        away_team_pog_assist_num = pog_assist_both[6]
-        away_team_pog_assist_number_name = pog_assist_both[8].strip()
-        away_team_pog_assist_name = away_team_pog_assist_number_name.split("-")[1] if len(away_team_pog_assist_number_name.split("-")) else away_team_pog_assist_number_name.split("-")[0]
-        away_team_pog_assist_number = away_team_pog_assist_number_name.split("-")[0] if len(away_team_pog_assist_number_name.split("-")) else ""
-        # 客场最佳篮板
-        away_team_pog_backboard_num = pog_backboard_both[6]
-        away_team_pog_backboard_number_name = pog_backboard_both[8].strip()
-        away_team_pog_backboard_name = away_team_pog_backboard_number_name.split("-")[1] if len(away_team_pog_backboard_number_name.split("-")) else away_team_pog_backboard_number_name.split("-")[0]
-        away_team_pog_backboard_number = away_team_pog_backboard_number_name.split("-")[0] if len(away_team_pog_backboard_number_name.split("-")) else ""
+        if all([pog_goal_both, pog_assist_both, pog_backboard_both]):
+            # 主队最佳分数
+            home_team_pog_goal_score = pog_goal_both[2]
+            home_team_pog_goal_number_name = pog_goal_both[0].strip()
+            home_team_pog_goal_name = home_team_pog_goal_number_name.split("-")[1] if len(home_team_pog_goal_number_name.split("-")) == 2 else home_team_pog_goal_number_name.split("-")[0]
+            home_team_pog_goal_number = home_team_pog_goal_number_name.split("-")[0] if len(home_team_pog_goal_number_name.split("-")) == 2 else ""
+            # 主队最佳助攻
+            home_team_pog_assist_num = pog_assist_both[2]
+            home_team_pog_assist_number_name = pog_assist_both[0].strip()
+            home_team_pog_assist_name = home_team_pog_assist_number_name.split("-")[1] if len(home_team_pog_assist_number_name.split("-")) == 2 else home_team_pog_assist_number_name.split("-")[0]
+            home_team_pog_assist_number = home_team_pog_assist_number_name.split("-")[0] if len(home_team_pog_assist_number_name.split("-")) == 2 else ""
+            # 主队最佳篮板
+            home_team_pog_backboard_num = pog_backboard_both[2]
+            home_team_pog_backboard_number_name = pog_backboard_both[0].strip()
+            home_team_pog_backboard_name = home_team_pog_backboard_number_name.split("-")[1] if len(
+                home_team_pog_backboard_number_name.split("-")) == 2 else home_team_pog_backboard_number_name.split("-")[0]
+            home_team_pog_backboard_number = home_team_pog_backboard_number_name.split("-")[0] if len(
+                home_team_pog_backboard_number_name.split("-")) == 2 else ""
+            # 客场最佳分数
+            away_team_pog_goal_score = pog_goal_both[6]
+            away_team_pog_goal_number_name = pog_goal_both[8].strip()
+            away_team_pog_goal_name = away_team_pog_goal_number_name.split("-")[1] if len(away_team_pog_goal_number_name.split("-")) else away_team_pog_goal_number_name.split("-")[0]
+            away_team_pog_goal_number = away_team_pog_goal_number_name.split("-")[0] if len(away_team_pog_goal_number_name.split("-")) else ""
+            # 客场最佳助攻
+            away_team_pog_assist_num = pog_assist_both[6]
+            away_team_pog_assist_number_name = pog_assist_both[8].strip()
+            away_team_pog_assist_name = away_team_pog_assist_number_name.split("-")[1] if len(away_team_pog_assist_number_name.split("-")) else away_team_pog_assist_number_name.split("-")[0]
+            away_team_pog_assist_number = away_team_pog_assist_number_name.split("-")[0] if len(away_team_pog_assist_number_name.split("-")) else ""
+            # 客场最佳篮板
+            away_team_pog_backboard_num = pog_backboard_both[6]
+            away_team_pog_backboard_number_name = pog_backboard_both[8].strip()
+            away_team_pog_backboard_name = away_team_pog_backboard_number_name.split("-")[1] if len(away_team_pog_backboard_number_name.split("-")) else away_team_pog_backboard_number_name.split("-")[0]
+            away_team_pog_backboard_number = away_team_pog_backboard_number_name.split("-")[0] if len(away_team_pog_backboard_number_name.split("-")) else ""
 
-        home_team_pog = {
-            "team_name": home_team_name,
-            "goal": {"num": home_team_pog_goal_score, "name": home_team_pog_goal_name,
-                     "number": home_team_pog_goal_number},
-            "assist": {"num": home_team_pog_assist_num, "name": home_team_pog_assist_name,
-                       "number": home_team_pog_assist_number},
-            "backboard": {"num": home_team_pog_backboard_num, "name": home_team_pog_backboard_name,
-                          "number": home_team_pog_backboard_number}
-        }
-        away_team_pog = {
-            "team_name": away_team_name,
-            "goal": {"num": away_team_pog_goal_score, "name": away_team_pog_goal_name,
-                     "number": away_team_pog_goal_number},
-            "assist": {"num": away_team_pog_assist_num, "name": away_team_pog_assist_name,
-                       "number": away_team_pog_assist_number},
-            "backboard": {"num": away_team_pog_backboard_num, "name": away_team_pog_backboard_name,
-                          "number": away_team_pog_backboard_number}
-        }
-        pog_data["home_team"] = home_team_pog
-        pog_data["away_team"] = away_team_pog
+            home_team_pog = {
+                "team_name": home_team_name,
+                "goal": {"num": home_team_pog_goal_score, "name": home_team_pog_goal_name,
+                         "number": home_team_pog_goal_number},
+                "assist": {"num": home_team_pog_assist_num, "name": home_team_pog_assist_name,
+                           "number": home_team_pog_assist_number},
+                "backboard": {"num": home_team_pog_backboard_num, "name": home_team_pog_backboard_name,
+                              "number": home_team_pog_backboard_number}
+            }
+            away_team_pog = {
+                "team_name": away_team_name,
+                "goal": {"num": away_team_pog_goal_score, "name": away_team_pog_goal_name,
+                         "number": away_team_pog_goal_number},
+                "assist": {"num": away_team_pog_assist_num, "name": away_team_pog_assist_name,
+                           "number": away_team_pog_assist_number},
+                "backboard": {"num": away_team_pog_backboard_num, "name": away_team_pog_backboard_name,
+                              "number": away_team_pog_backboard_number}
+            }
+            pog_data["home_team"] = home_team_pog
+            pog_data["away_team"] = away_team_pog
         # print(pog_data)
         # yield {"_id": uuid, "home_team_name": home_team_name, "away_team_name": away_team_name, "data": pog_data}, "mn_sports_qq_nba_pog"
         yield {"item": {"_id": uuid, "data": pog_data, "home_team_name": home_team_name, "away_team_name": away_team_name, "start_time": start_time}, "collection": "mn_sports_qq_nba_pog"}

@@ -23,7 +23,11 @@ class NbaTextKeysSpider(scrapy.Spider):
     # start_urls = ['http://matchweb.sports.qq.com/']
     start_urls = urls
     custom_settings = {
-        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaTextKeysPipeline': 302}
+        "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaTextKeysPipeline': 302},
+
+        # 设置log日志
+        'LOG_LEVEL': 'ERROR',
+        'LOG_FILE': './logs/spider_nba_text_keys.log'
     }
 
     def parse(self, response):

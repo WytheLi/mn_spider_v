@@ -424,31 +424,30 @@ def nba_text_after(db, uuid):
         vs_score_dict = vs_score["data"]
         vs_pog_data = vs_pog["data"]
         data = sorted(data, key=lambda x: x["data"]["sendTime"])
-
         text += "<p>"
         # 遍历拼接
         for teletext in data:
-            if not teletext.get("quarter"):
-                if teletext.get("content"):
-                    if "届时" in teletext.get("content") or "将" in teletext.get("content") or "敬请期待" in teletext.get(
-                            "content") or "明天" in teletext.get("content"):
+            if not teletext["data"].get("quarter"):
+                if teletext["data"].get("content"):
+                    if "届时" in teletext["data"].get("content") or "将" in teletext["data"].get("content") or "敬请期待" in teletext["data"].get(
+                            "content") or "明天" in teletext["data"].get("content"):
                         continue
-                    if "前瞻" in teletext.get("content") or "首发" in teletext.get("content") or "先发" in teletext.get(
+                    if "前瞻" in teletext["data"].get("content") or "首发" in teletext["data"].get("content") or "先发" in teletext["data"].get(
                             "content"):
                         continue
-                    text += teletext.get("content").split("。")[0]
+                    text += teletext["data"].get("content").split("。")[0]
                 if len(data) > data.index(teletext) + 1:
-                    if data[data.index(teletext) + 1].get("quarter") == "第1节":  # 首段結束
+                    if data[data.index(teletext) + 1]["data"].get("quarter") == "第1节":  # 首段結束
                         text += "<p>比赛开始，"
 
-            elif teletext.get("quarter") == "第1节":
-                if teletext.get("plus") and teletext.get("plus").startswith("+"):
+            elif teletext["data"].get("quarter") == "第1节":
+                if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
                     # 提取得分时推送信息
-                    match_obj = re.search(r"].*?（", teletext["content"], re.S)
+                    match_obj = re.search(r"].*?（", teletext["data"]["content"], re.S)
                     res_search = match_obj.group()
                     re_sub = re.sub(r"[^\u4e00-\u9fa5]*", "", res_search)
                     text += re_sub + "；"
-                if teletext.get("content") == "本节比赛结束":
+                if teletext["data"].get("content") == "本节比赛结束":
                     # 第一节末比分比较
                     home_team_score_dict = vs_score_dict["home_team"]  # 主队本场所有小节得分
                     away_team_score_dict = vs_score_dict["away_team"]  # 客队本场所有小节得分
@@ -469,18 +468,18 @@ def nba_text_after(db, uuid):
                         text += score_h_team + score_h + "-" + score_l + "领先" + score_l_team + "。</p>"
                         text += "<p>第二节，"
 
-            elif teletext.get("quarter") == "第2节":
-                if teletext.get("plus") and teletext.get("plus").startswith("+"):
+            elif teletext["data"].get("quarter") == "第2节":
+                if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
                     # 提取得分时推送信息
                     # print(teletext["content"])
-                    match_obj = re.search(r"].*?（", teletext["content"], re.S)
+                    match_obj = re.search(r"].*?（", teletext["data"]["content"], re.S)
                     # print(match_obj)
                     if not match_obj:
                         continue
                     res_search = match_obj.group()
                     re_sub = re.sub(r"[^\u4e00-\u9fa5]*", "", res_search)
                     text += re_sub + "；"
-                if teletext.get("content") == "本节比赛结束":
+                if teletext["data"].get("content") == "本节比赛结束":
                     # 第二节末比分比较
                     home_team_score_dict = vs_score_dict["home_team"]  # 主队本场所有小节得分
                     away_team_score_dict = vs_score_dict["away_team"]  # 客队本场所有小节得分
@@ -500,14 +499,14 @@ def nba_text_after(db, uuid):
                         text += score_h_team + score_h + "-" + score_l + "领先" + score_l_team + "。</p>"
                         text += "<p>易边再战，"
 
-            elif teletext.get("quarter") == "第3节":
-                if teletext.get("plus") and teletext.get("plus").startswith("+"):
+            elif teletext["data"].get("quarter") == "第3节":
+                if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
                     # 提取得分时推送信息
-                    match_obj = re.search(r"].*?（", teletext["content"], re.S)
+                    match_obj = re.search(r"].*?（", teletext["data"]["content"], re.S)
                     res_search = match_obj.group()
                     re_sub = re.sub(r"[^\u4e00-\u9fa5]*", "", res_search)
                     text += re_sub + "；"
-                if teletext.get("content") == "本节比赛结束":
+                if teletext["data"].get("content") == "本节比赛结束":
                     # 第三节末比分比较
                     home_team_score_dict = vs_score_dict["home_team"]  # 主队本场所有小节得分
                     away_team_score_dict = vs_score_dict["away_team"]  # 客队本场所有小节得分
@@ -527,15 +526,15 @@ def nba_text_after(db, uuid):
                         text += score_h_team + score_h + "-" + score_l + "领先" + score_l_team + "。</p>"
                         text += "<p>第四节，"
 
-            elif teletext.get("quarter") == "第4节":
-                if teletext.get("plus") and teletext.get("plus").startswith("+"):
+            elif teletext["data"].get("quarter") == "第4节":
+                if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
                     # 提取得分时推送信息
-                    match_obj = re.search(r"].*?（", teletext["content"], re.S)
+                    match_obj = re.search(r"].*?（", teletext["data"]["content"], re.S)
                     res_search = match_obj.group()
                     re_sub = re.sub(r"[^\u4e00-\u9fa5]*", "", res_search)
                     text += re_sub + "；"
 
-                if teletext.get("content") == "本节比赛结束":
+                if teletext["data"].get("content") == "本节比赛结束":
                     # 第四场末比较总分
                     home_team_score_dict = vs_score_dict["home_team"]  # 主队本场所有小节得分
                     away_team_score_dict = vs_score_dict["away_team"]  # 客队本场所有小节得分
@@ -572,10 +571,10 @@ def nba_text_after(db, uuid):
                     # ot_key_list = ot_item_dict.keys()
                     ot_list = list(ot_item_dict.values())
                     for ot in ot_list:
-                        if teletext.get("quarter") == "加时" + str(ot_list.index(ot) + 1):
-                            if teletext.get("plus") and teletext.get("plus").startswith("+"):
+                        if teletext["data"].get("quarter") == "加时" + str(ot_list.index(ot) + 1):
+                            if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
                                 # 提取得分时推送信息
-                                match_obj = re.search(r"].*?（", teletext["content"], re.S)
+                                match_obj = re.search(r"].*?（", teletext["data"]["content"], re.S)
                                 res_search = match_obj.group()
                                 re_sub = re.sub(r"[^\u4e00-\u9fa5]*", "", res_search)
                                 text += re_sub + "；"
@@ -758,13 +757,13 @@ def nba_text_before(db, uuid):
         text = ""
         # 遍历拼接
         for teletext in data:
-            if not teletext.get("quarter"):
+            if not teletext["data"].get("quarter"):
                 # pprint(teletext)
-                if teletext.get("content"):
-                    if "前瞻" in teletext.get("content") or "首发" in teletext.get("content") or "先发" in teletext.get(
+                if teletext["data"].get("content"):
+                    if "前瞻" in teletext["data"].get("content") or "首发" in teletext["data"].get("content") or "先发" in teletext["data"].get(
                             "content"):
                         break
-                    text += "<p>" + teletext["content"] + "</p>"
+                    text += "<p>" + teletext["data"]["content"] + "</p>"
         return text
 
 
@@ -797,4 +796,8 @@ def publish_content(username, password, content):
 
 
 if __name__ == "__main__":
-    publish_content("18229854080", "Lzw1911@", "今天天气好晴朗，处处好风光！")
+    # publish_content("18229854080", "Lzw1911@", "今天天气好晴朗，处处好风光！")
+    from mn_spider_v.clients import mongo_conn
+    from mn_spider_v import constants
+    text = nba_text_after(mongo_conn[constants.DB], "f424c6bc9d8893627b39c67973365203")
+    print(text)

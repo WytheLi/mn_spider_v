@@ -3,3 +3,4 @@ pymysql
 pymongo
 scrapy
 celery
+pyvirtualdisplay

@@ -6,8 +6,8 @@
 # @Description: 常量
 
 # 获取mid
-START_TIME = "2019-12-04"
-END_TIME = "2019-12-05"
+START_TIME = "2019-12-09"
+END_TIME = "2019-12-10"
 
 # mongo
 USERNAME = "root"
@@ -16,7 +16,7 @@ HOST = "139.129.229.223"
 PORT = 27017
 # DB = "mn_sports_qq_nba"
 # DB = "db_test"
-DB = "db_demo"
+DB = "db_test2"
 
 # mysql
 MYSQL_USERNAME = "root"
