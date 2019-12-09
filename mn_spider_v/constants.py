@@ -29,9 +29,9 @@ MYSQL_DB = "mn_sports_qq_nba"
 # 本地win
 # CHROMEDRIVER_PATH = r"C:\Users\WytheLi\Downloads\chromedriver.exe"
 # 本地Ubuntu
-CHROMEDRIVER_PATH = "/home/wytheli/Desktop/chromedriver"
+# CHROMEDRIVER_PATH = "/home/wytheli/Desktop/chromedriver"
 # 线上
-# CHROMEDRIVER_PATH = "/root/chromedriver"
+CHROMEDRIVER_PATH = "/root/chromedriver"
 
 # 已登录的用户对象列表
 USER_LIST = []
