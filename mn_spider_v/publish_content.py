@@ -45,9 +45,9 @@ class ChromeDriver(object):
             "user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'")
         # self._driver = webdriver.Chrome(executable_path=config.CHROMEDRIVER_PATH, chrome_options=self._options)
 
-        # from pyvirtualdisplay import Display
-        # display = Display(visible=0, size=(800, 800))
-        # display.start()
+        from pyvirtualdisplay import Display
+        self.display = Display(visible=0, size=(800, 800))
+        self.display.start()
         # 以下用单例模式创建对象
         self.driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=self.chrome_options)
         self.wait = WebDriverWait(self.driver, 10)

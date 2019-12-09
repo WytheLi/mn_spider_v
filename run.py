@@ -14,12 +14,12 @@ from mn_spider_v.constants import change_time, START_TIME
 logger = getLogger(__name__)
 
 while True:
-    # now_date = time.strftime("%Y-%m-%d", time.localtime())
-    # # 明确需要爬取今明两天的直播数据
-    # if now_date > START_TIME:
-    #     tomorrow_obj = datetime.datetime.strptime(now_date, "%Y-%m-%d") + datetime.timedelta(days=+1)
-    #     tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
-    #     change_time(now_date, tomorrow)
+    now_date = time.strftime("%Y-%m-%d", time.localtime())
+    # 明确需要爬取今明两天的直播数据
+    if now_date > START_TIME:
+        tomorrow_obj = datetime.datetime.strptime(now_date, "%Y-%m-%d") + datetime.timedelta(days=+1)
+        tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
+        change_time(now_date, tomorrow)
 
     print("######################### scrapy crawl nba_mid #########################")
     logger.info("scrapy crawl nba_mid")

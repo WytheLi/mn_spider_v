@@ -134,8 +134,8 @@ class SeleniumDownloaderMiddleware(object):
         self.chrome_options.add_argument('--headless')  # 增加无界面选项
         self.chrome_options.add_argument('blink-settings=imagesEnabled=false')  # 不加载图片, 提升速度
         from pyvirtualdisplay import Display
-        display = Display(visible=0, size=(800, 800))
-        display.start()
+        self.display = Display(visible=0, size=(800, 800))
+        self.display.start()
         self.browser = webdriver.Chrome(executable_path=constants.CHROMEDRIVER_PATH, chrome_options=self.chrome_options)
         # self.browser.set_window_size(1400, 700)
         self.browser.set_page_load_timeout(self.timeout)
