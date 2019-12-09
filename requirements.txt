@@ -1,0 +1,5 @@
+selenium
+pymysql
+pymongo
+scrapy
+celery
