@@ -11,8 +11,6 @@ import re
 from mn_spider_v.clients import mysql_conn
 from mn_spider_v.publish_content import TouTiaoLogin, TouTiaoPosted
 
-auth_user_list = []
-
 
 def save_text_after_game_to_mysql(uuid, text, home_team, away_team, start_time):
     """
@@ -427,7 +425,7 @@ def nba_text_after(db, uuid):
         text += "<p>"
         # 遍历拼接
         for teletext in data:
-            if not teletext["data"].get("quarter"):
+            if not teletext["data"].get("quarter"):     # 赛前推送
                 if teletext["data"].get("content"):
                     if "届时" in teletext["data"].get("content") or "将" in teletext["data"].get("content") or "敬请期待" in teletext["data"].get(
                             "content") or "明天" in teletext["data"].get("content"):
@@ -435,6 +433,7 @@ def nba_text_after(db, uuid):
                     if "前瞻" in teletext["data"].get("content") or "首发" in teletext["data"].get("content") or "先发" in teletext["data"].get(
                             "content"):
                         continue
+                    # 拼接每条赛前推送的第一句
                     text += teletext["data"].get("content").split("。")[0]
                 if len(data) > data.index(teletext) + 1:
                     if data[data.index(teletext) + 1]["data"].get("quarter") == "第1节":  # 首段結束
@@ -765,34 +764,6 @@ def nba_text_before(db, uuid):
                         break
                     text += "<p>" + teletext["data"]["content"] + "</p>"
         return text
-
-
-def publish_content(username, password, content):
-    """
-    头条发布话题
-    :return:
-    """
-    # print(cd._driver)
-    user = None
-    print(auth_user_list)
-    if not auth_user_list:
-        user = TouTiaoLogin(username, password)
-        user.login()
-        auth_user_list.append(user)
-    else:
-        for user in auth_user_list:
-            if user.username == username:
-                print(user.username)
-                user = user
-                break
-        else:
-            user = TouTiaoLogin(username, password)
-            user.login()
-            auth_user_list.append(user)
-    # user = TouTiaoLogin(cd, "19901551995", "Fyy19920717")
-    # print(user.cookies)
-    p = TouTiaoPosted(user.chromedriver, user.cookies)
-    p.posted(content)
 
 
 if __name__ == "__main__":
