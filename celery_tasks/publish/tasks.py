@@ -5,9 +5,8 @@
 # @Time    : 19-12-9 上午9:34
 # @Description:
 from celery_tasks import celery_app
+from mn_spider_v.constants import login_user_list
 from mn_spider_v.publish_content import TouTiaoLogin, TouTiaoPosted
-
-auth_user_list = []
 
 
 @celery_app.task(name='publish_text')
@@ -19,14 +18,14 @@ def publish_text(username, password, content):
     :param content:
     :return:
     """
+    # TODO cookie过期还没有处理
     user = None
-    print(auth_user_list)
-    if not auth_user_list:
+    if not login_user_list:     # 列表为空
         user = TouTiaoLogin(username, password)
         user.login()
-        auth_user_list.append(user)
+        login_user_list.append(user)
     else:
-        for user in auth_user_list:
+        for user in login_user_list:
             if user.username == username:
                 print(user.username)
                 user = user
@@ -34,13 +33,9 @@ def publish_text(username, password, content):
         else:
             user = TouTiaoLogin(username, password)
             user.login()
-            auth_user_list.append(user)
+            login_user_list.append(user)
+
     # user = TouTiaoLogin(cd, "19901551995", "Fyy19920717")
     # print(user.cookies)
     p = TouTiaoPosted(user.chromedriver, user.cookies)
     p.posted(content)
-
-
-# @celery_app.task(name="my_add")
-# def my_add(x, y):
-#     return x + y

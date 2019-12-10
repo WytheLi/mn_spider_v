@@ -6,7 +6,7 @@ from urllib import parse
 import scrapy
 
 from mn_spider_v import constants
-from mn_spider_v.clients import mongo_conn
+from mn_spider_v.clients import mongo_conn, redis_conn
 from mn_spider_v.common import gen_args_list
 
 
@@ -14,15 +14,17 @@ class NbaTextSpider(scrapy.Spider):
     name = 'nba_text'
     allowed_domains = ['matchweb.sports.qq.com']
     # https://matchweb.sports.qq.com/textLive/detail?competitionId=100000&matchId=54431803&AppName=kanbisai&AppOS=iphone&AppVersion=1.0&webVersion=1&ids=11963368_3626759963,11963367_3512631743,11963366_2076970808,11963365_2179851368,11963364_1908368926,11963360_442706471,11963356_479816278,11963353_2940670366,11963349_572884312,11963342_3127673888,11963338_4257560085,11963337_1723380495,11963334_26024958,11963328_1813330459,11963327_1890076601,11963326_2878742126,11963325_2446964875,11963324_1514821627,11963323_2793109401,11963319_3293359857&callback=textDetail
+    start_time = redis_conn.get("start_time").decode()
+    end_time = redis_conn.get("end_time").decode()
     # 将终止日期END_TIME +1天处理
-    new_date_obj = datetime.datetime.strptime(constants.END_TIME, "%Y-%m-%d") + datetime.timedelta(days=+1)
+    new_date_obj = datetime.datetime.strptime(end_time, "%Y-%m-%d") + datetime.timedelta(days=+1)
     new_date_str = datetime.datetime.strftime(new_date_obj, "%Y-%m-%d")
 
     text_keys_res = mongo_conn[constants.DB]["mn_sports_qq_nba_text_keys"].find(
-        {"$and": [{"start_time": {"$gte": constants.START_TIME}}, {"start_time": {"$lte": new_date_str}}]})
+        {"$and": [{"start_time": {"$gte": start_time}}, {"start_time": {"$lte": new_date_str}}]})
     # print(type(text_keys_res), isinstance(text_keys_res, Iterator))
     mid_dict_res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
-        {"$and": [{"date": {"$gte": constants.START_TIME}}, {"date": {"$lte": new_date_str}}]})
+        {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": new_date_str}}]})
     # print(type(mid_dict_res), isinstance(mid_dict_res, Iterator))
 
     # find()返回迭代器

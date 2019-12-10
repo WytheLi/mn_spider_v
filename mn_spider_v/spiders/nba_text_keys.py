@@ -5,16 +5,18 @@ from urllib import parse
 import scrapy
 
 from mn_spider_v import constants
-from mn_spider_v.clients import mongo_conn
+from mn_spider_v.clients import mongo_conn, redis_conn
 from mn_spider_v.common import gen_nba_vs_uuid
 
 
 class NbaTextKeysSpider(scrapy.Spider):
     name = 'nba_text_keys'
     allowed_domains = ['matchweb.sports.qq.com']
+    start_time = redis_conn.get("start_time").decode()
+    end_time = redis_conn.get("end_time").decode()
     # 根据mid请求图文所需keys查询参数
     res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
-        {"$and": [{"date": {"$gte": constants.START_TIME}}, {"date": {"$lte": constants.END_TIME}}]})
+        {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": end_time}}]})
     urls = []
     if res:
         for sing_dict in res:

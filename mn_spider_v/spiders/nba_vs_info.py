@@ -2,7 +2,7 @@
 import scrapy
 
 from mn_spider_v import constants
-from mn_spider_v.clients import mongo_conn
+from mn_spider_v.clients import mongo_conn, redis_conn
 from mn_spider_v.common import gen_nba_vs_uuid
 
 
@@ -10,8 +10,10 @@ class NbaVsInfoSpider(scrapy.Spider):
     name = 'nba_vs_info'
     allowed_domains = ['sports.qq.com']
     # start_urls = ['http://sports.qq.com/']
+    start_time = redis_conn.get("start_time").decode()
+    end_time = redis_conn.get("end_time").decode()
     res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
-        {"$and": [{"date": {"$gte": constants.START_TIME}}, {"date": {"$lte": constants.END_TIME}}]})
+        {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": end_time}}]})
     # for mid in data:
     #     print(mid["list"])
     urls = []
