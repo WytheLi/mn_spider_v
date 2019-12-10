@@ -30,6 +30,8 @@ while True:
             tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
             redis_conn.set("start_time", now_date)
             redis_conn.set("end_time", tomorrow)
+            start_time = now_date
+            end_time = tomorrow
 
     now_date = time.strftime("%Y-%m-%d", time.localtime())
     # 明确需要爬取今明两天的直播数据
