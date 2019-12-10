@@ -19,25 +19,21 @@ os.system("celery -D -A celery_tasks worker -l info -f logs/celery.log")
 while True:
     start_time = redis_conn.get("start_time")
     end_time = redis_conn.get("end_time")
+    now_date = time.strftime("%Y-%m-%d", time.localtime())
+    tomorrow_obj = datetime.datetime.strptime(now_date, "%Y-%m-%d") + datetime.timedelta(days=+1)
+    tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
     if all([start_time, end_time]):
         start_time = start_time.decode()
         end_time = end_time.decode()
     else:
         # 初始化redis
-        now_date = time.strftime("%Y-%m-%d", time.localtime())
-        if now_date > start_time:
-            tomorrow_obj = datetime.datetime.strptime(now_date, "%Y-%m-%d") + datetime.timedelta(days=+1)
-            tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
-            redis_conn.set("start_time", now_date)
-            redis_conn.set("end_time", tomorrow)
-            start_time = now_date
-            end_time = tomorrow
+        redis_conn.set("start_time", now_date)
+        redis_conn.set("end_time", tomorrow)
+        start_time = now_date
+        end_time = tomorrow
 
-    now_date = time.strftime("%Y-%m-%d", time.localtime())
     # 明确需要爬取今明两天的直播数据
     if now_date > start_time:
-        tomorrow_obj = datetime.datetime.strptime(now_date, "%Y-%m-%d") + datetime.timedelta(days=+1)
-        tomorrow = datetime.datetime.strftime(tomorrow_obj, "%Y-%m-%d")
         redis_conn.set("start_time", now_date)
         redis_conn.set("end_time", tomorrow)
 
