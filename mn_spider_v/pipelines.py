@@ -6,11 +6,11 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import time
 
-from celery_tasks.publish.tasks import publish_text
 from mn_spider_v import constants
-from mn_spider_v.clients import mongo_conn, mysql_conn
-from mn_spider_v.common import gen_nba_vs_uuid, nba_text_after, nba_text_before, \
-    save_text_before_game_to_mysql, save_text_after_game_to_mysql
+from mn_spider_v.clients import mongo_conn, mysql_conn, redis_conn
+from mn_spider_v.common import gen_nba_vs_uuid, \
+    save_text_before_game_to_mysql, save_text_after_game_to_mysql, publish_sing_text
+from mn_spider_v.create_text import nba_text_before, nba_text_after
 
 """
 给多个spider指定对应的pipline：
@@ -77,9 +77,9 @@ class NbaVsInfoPipeline(object):
                             if text_before_game:
                                 # 保存赛前文本到mysql
                                 save_text_before_game_to_mysql(item["item"]["_id"], text_before_game, item["item"]["home_team_name"], item["item"]["away_team_name"], item["item"]["start_time"])
-                                # 发送
-                                text_before_game = text_before_game.replace("<p>", "").replace("</p>", "\r\n")
-                                publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_before_game)
+                                # # 发送
+                                # text_before_game = text_before_game.replace("<p>", "").replace("</p>", "\r\n")
+                                # publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_before_game)
                 item["item"]["create_time"] = now_time
                 item["item"]["update_time"] = now_time
                 mongo_conn[constants.DB][item["collection"]].insert_one(item["item"])
@@ -110,7 +110,15 @@ class NbaTextPipeline(object):
         2、赛后文本的发布
             - 当text文档content字段包含“全场比赛结束”时，生成赛后文本，并发送
         3、赛中赛况
-            -
+            比如76人队
+            放置于update_one中
+            - 根据yield数据，team_name(后续可能定位某个用户的得分, 根据 [球员名] in content)
+            - 如果yield text数据是某球队的图文直播数据
+                - 频率判断发送
+                    ps: 顺序问题，请求到的每页text信息为倒序
+                    - content中[]为得分队伍==76人&&满足这条信息未被发送过&&距离该场比赛上条得分text发送12分钟
+                    - 调用发送函数给指定tt用户发送
+                - 球员判断发送
         :param item:
         :param spider:
         :return:
@@ -118,7 +126,9 @@ class NbaTextPipeline(object):
         # mn_sports_qq_nba_teletext
         # mn_sports_qq_nba_text
         uuid = gen_nba_vs_uuid(item["home_team_name"], item["away_team_name"], item["start_time"])
-        for id, data in item["data"].items():
+        # 每页的text数据为倒序，这里做反转
+        items = list(reversed([(id, data) for id, data in item["data"].items()]))
+        for id, data in items:
             text_res = mongo_conn[constants.DB]["mn_sports_qq_nba_text"].find_one({"_id": id})
             teletext = mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].find_one({"_id": uuid})
             now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -132,7 +142,11 @@ class NbaTextPipeline(object):
                     ids = [id]
                     mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "create_time": now_time, "update_time": now_time})
             else:   # 文档在text集合中存在，判断其_id值是否也存在于teletext集合
-                if id not in teletext["data"]:  # 其_id值是否也存在于teletext集合，更新集合
+                # 单条text的判断和发送
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "湖人")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "快船")
+
+                if id not in teletext["data"]:  # 其_id值不存在于teletext集合，更新集合
                     teletext["data"].append(id)
                     mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].update_one({"_id": uuid}, {"$set": {"data": teletext["data"], "update_time": now_time}})
             # 当yield text文档content字段包含“全场比赛结束”时，生成赛后文本，并发送
@@ -149,7 +163,7 @@ class NbaTextPipeline(object):
                         if text_after_game:
                             # save to mysql
                             save_text_after_game_to_mysql(uuid, text_after_game, item["home_team_name"], item["away_team_name"], item["start_time"])
-                            # 发送
-                            text_after_game = text_after_game.replace("<p>", "").replace("</p>", "\r\n")
-                            publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_after_game)
+                            # # 发送
+                            # text_after_game = text_after_game.replace("<p>", "").replace("</p>", "\r\n")
+                            # publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_after_game)
 

@@ -22,6 +22,7 @@ from selenium.webdriver.common.by import By
 
 
 from mn_spider_v.constants import CHROMEDRIVER_PATH
+from util.proxy_test import auth
 
 
 @contextmanager
@@ -44,6 +45,7 @@ class ChromeDriver(object):
         self.chrome_options.add_argument('--headless')  # 增加无界面选项
         self.chrome_options.add_argument(
             "user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'")
+        self.chrome_options.add_argument('Proxy-Authorization=%s' % auth)
         # self._driver = webdriver.Chrome(executable_path=config.CHROMEDRIVER_PATH, chrome_options=self._options)
 
         from pyvirtualdisplay import Display
@@ -147,7 +149,7 @@ class TouTiaoLogin(object):
                 time.sleep(2)
                 # 域名过滤前的所有cookies
                 self.cookies = self.chromedriver.driver.get_cookies()
-                print(self.cookies)
+                # print(self.cookies)
         except Exception as e:
             print(e)
             self._callback_fun()
@@ -256,7 +258,7 @@ class TouTiaoPosted(object):
         """
         # 过滤后拿到指定站点的cookies
         self.cookies = self.getPureDomainCookies()
-        print(self.cookies)
+        # print(self.cookies)
         for cookie in self.cookies:
             if "expiry" in cookie:
                 del cookie["expiry"]
@@ -268,3 +270,11 @@ class TouTiaoPosted(object):
         self.chromedriver.driver.find_element_by_class_name('upload-publish').click()
         time.sleep(1)
         print("Posted Successful！")
+
+
+if __name__ == "__main__":
+    user = TouTiaoLogin("18229854080", "Lzw1911@")
+    user.login()
+
+    t = TouTiaoPosted(user.chromedriver, user.cookies)
+    t.posted("呼伦贝尔")

@@ -21,12 +21,12 @@ class NbaVsInfoSpider(scrapy.Spider):
         for sing_dict in res:
             urls.append("https://sports.qq.com/kbsweb/game.htm?mid=%s&start_time=%s" % (sing_dict["data"]["mid"], sing_dict["data"]["startTime"]))
     start_urls = urls
-    custom_settings = { # 指定管道
+    custom_settings = {  # 指定管道
         "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaVsInfoPipeline': 301},
 
         # 设置log日志
         'LOG_LEVEL': 'ERROR',
-        'LOG_FILE': './logs/spider_nba__vs_info.log'
+        'LOG_FILE': './logs/spider_nba_vs_info.log'
     }
 
     def parse(self, response):

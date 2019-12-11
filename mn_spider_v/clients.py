@@ -30,13 +30,17 @@ redis_conn = redis.Redis(connection_pool=redis_conn_pool)
 
 
 if __name__ == "__main__":
-    redis_conn.set("start_time", "2019-10-10")
-    res1 = redis_conn.get("start_time").decode()
-    print(res1)
+    # 字符串操作
+    # redis_conn.set("start_time", "2019-10-10")
+    # res1 = redis_conn.get("start_time").decode()
+    # print(res1)
+    redis_conn.setex("time_node_aaa", 300, "aaaa")
 
+
+    # 列表操作
     # redis_conn.lpush("login_user_list", "aaa")
     # redis_conn.lpush("login_user_list", "bbb")
-    list_len = redis_conn.llen("login_user_list")
-    print(list_len)
-    res_list = redis_conn.lrange("login_user_list", 0, list_len-1)
-    print(res_list)
+    # list_len = redis_conn.llen("login_user_list")
+    # print(list_len)
+    # res_list = redis_conn.lrange("login_user_list", 0, list_len-1)
+    # print(res_list)

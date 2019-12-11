@@ -77,4 +77,6 @@ class NbaTextSpider(scrapy.Spider):
         text_dict = json.loads(response.text[11:-2])[1] if json.loads(response.text[11:-2])[1] else {}
         # for id, data in text_dict.items():
         print(text_dict)
+        # 图文直播数据请求到的分页数据为倒序
+        # {"[id]": {}, "[id]: {}, "[id]": {}}
         yield {"data": text_dict, "home_team_name": home_team_name, "away_team_name": away_team_name, "start_time": start_time}

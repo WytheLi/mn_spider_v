@@ -53,9 +53,10 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
+DOWNLOADER_MIDDLEWARES = {      # 数值越低，优先级越高
    # 'mn_spider_v.middlewares.MnSpiderVDownloaderMiddleware': 543,
-   'mn_spider_v.middlewares.SeleniumDownloaderMiddleware': 543,
+   'mn_spider_v.middlewares.SeleniumDownloaderMiddleware': 543,     # selenium网页渲染
+   # 'mn_spider_v.middlewares.ProxyDownloaderMiddleware': 125,    # 动态代理转发 请求头部Proxy-Authorization的添加
 }
 
 # Enable or disable extensions

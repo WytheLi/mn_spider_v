@@ -46,3 +46,10 @@ TT_PASSWORD = "Lzw1911@"
 
 # 登录的用户列表 (需要存储用户对象，该列表全程应该存在于内存中)
 login_user_list = []
+
+# 单条图文发布 redis缓存24小时
+TEXT_EXPIRY = 86400
+TIME_NODE_EXPIRY = 86400
+
+# 单条发送间隔 12分钟
+TIME_LAG = 12

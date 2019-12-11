@@ -4,7 +4,10 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
+import hashlib
+import random
 import re
+import time
 
 from scrapy import signals
 
@@ -115,6 +118,30 @@ class MnSpiderVDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class ProxyDownloaderMiddleware(object):
+    def __init__(self):
+        self.orderno = "ZF20191298120NifqXV"
+        self.secret = "65a61c2fe56840488037cc507b6620f4"
+
+    def process_request(self, request, spider):
+        """
+        动态代理转发 给header添加Proxy-Authorization参数
+        参考博客： https://blog.csdn.net/qq_26877377/article/details/82499087
+        https://my.oschina.net/chenmoxuan/blog/3095926
+
+        :param request:
+        :param spider:
+        :return:
+        """
+        request.meta['proxy'] = 'http://forward.xdaili.cn:80'
+        timestamp = str(int(time.time()))  # timestamp
+        plan_text = "orderno=" + self.orderno + "," + "secret=" + self.secret + "," + "timestamp=" + timestamp
+        md5_string = hashlib.md5(plan_text.encode('utf-8')).hexdigest()  # sign
+        sign = md5_string.upper()
+        auth = "sign=" + sign + "&" + "orderno=" + self.orderno + "&" + "timestamp=" + timestamp
+        request.headers["Proxy-Authorization"] = auth
 
 
 # 该下载中间件开启后，所有爬虫都得selenium渲染
