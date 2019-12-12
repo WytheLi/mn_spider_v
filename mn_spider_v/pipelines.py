@@ -148,7 +148,7 @@ class NbaTextPipeline(object):
                         mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].update_one({"_id": uuid}, {"$set": {"data": teletext["data"], "update_time": now_time}})
                 else:       # 文档所属于比赛在teletext集合不存在，插入文档
                     ids = [id]
-                    mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "home_team_name": item["home_team_name"], "away_team_name": item["away_team_name"], "create_time": now_time, "update_time": now_time})
+                    mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "home_team_name": item["home_team_name"], "away_team_name": item["away_team_name"], "start_time": item["start_time"], "create_time": now_time, "update_time": now_time})
             else:   # 文档在text集合中存在，判断其_id值是否也存在于teletext集合
                 # 单条text的判断和发送
                 publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "尼克斯")
