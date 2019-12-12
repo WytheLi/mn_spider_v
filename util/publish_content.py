@@ -45,13 +45,13 @@ class ChromeDriver(object):
         self.chrome_options.add_argument('--headless')  # 增加无界面选项
         self.chrome_options.add_argument(
             "user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'")
-        self.chrome_options.add_argument('Proxy-Authorization=%s' % auth)
+        # self.chrome_options.add_argument('Proxy-Authorization=%s' % auth)
         # self._driver = webdriver.Chrome(executable_path=config.CHROMEDRIVER_PATH, chrome_options=self._options)
 
         from pyvirtualdisplay import Display
         self.display = Display(visible=0, size=(800, 800))
         self.display.start()
-        # 以下用单例模式创建对象
+        以下用单例模式创建对象
         self.driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=self.chrome_options)
         self.wait = WebDriverWait(self.driver, 10)
 
@@ -273,7 +273,9 @@ class TouTiaoPosted(object):
 
 
 if __name__ == "__main__":
-    user = TouTiaoLogin("18229854080", "Lzw1911@")
+    # user = TouTiaoLogin("18229854080", "Lzw1911@")
+    user = TouTiaoLogin("19901551995", "Fyy19920717")
+    user = TouTiaoLogin("14928623347", "MN7777mn")
     user.login()
 
     t = TouTiaoPosted(user.chromedriver, user.cookies)

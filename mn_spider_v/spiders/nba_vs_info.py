@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from urllib import parse
+
 import scrapy
 
 from mn_spider_v import constants
@@ -19,7 +21,12 @@ class NbaVsInfoSpider(scrapy.Spider):
     urls = []
     if res:
         for sing_dict in res:
-            urls.append("https://sports.qq.com/kbsweb/game.htm?mid=%s&start_time=%s" % (sing_dict["data"]["mid"], sing_dict["data"]["startTime"]))
+            urls.append("https://sports.qq.com/kbsweb/game.htm?mid=%(mid)s&start_time=%(start_time)s&leftName=%(left_name)s&rightName=%(right_name)s" % {
+                "mid": sing_dict["data"]["mid"],
+                "start_time": sing_dict["data"]["startTime"],
+                "left_name": sing_dict["data"]["leftName"],
+                "right_name": sing_dict["data"]["rightName"]
+            })  # (sing_dict["data"]["mid"], sing_dict["data"]["startTime"])
     start_urls = urls
     custom_settings = {  # 指定管道
         "ITEM_PIPELINES": {'mn_spider_v.pipelines.NbaVsInfoPipeline': 301},
@@ -32,12 +39,18 @@ class NbaVsInfoSpider(scrapy.Spider):
     def parse(self, response):
         # print("Response URL:", response.url)
         # print(response.text)
-        start_time = response.url.split("=")[-1].replace("%20", " ")
-        # print(start_time)
-        team_name_both = response.xpath('//div[@id="container"]/div[@id="head-box"]/div[contains(@class, "inner")]//text()').extract()
+        query_string_list = response.url.split("?")[1].split("&")
+        # url参数解码
+        # from urllib import parse
+        # parse.quote()编码；parse.unquote()解码
+        start_time = parse.unquote(query_string_list[-3].split("=")[1])
+        home_team_name = parse.unquote(query_string_list[-2].split("=")[1])
+        away_team_name = parse.unquote(query_string_list[-1].split("=")[1])
+        # 解析主页vs队伍名
+        # team_name_both = response.xpath('//div[@id="container"]/div[@id="head-box"]/div[contains(@class, "inner")]//text()').extract()
         # print(team_name_both)
-        home_team_name = team_name_both[9].strip()
-        away_team_name = team_name_both[20].strip()
+        # home_team_name = team_name_both[9].strip()
+        # away_team_name = team_name_both[20].strip()
         # 生成uuid
         uuid = gen_nba_vs_uuid(home_team_name, away_team_name, start_time)
         # print(uuid, home_team_name, away_team_name, start_time)
@@ -98,7 +111,7 @@ class NbaVsInfoSpider(scrapy.Spider):
                     "count": away_team_list[-1].strip()
                 }
                 for ot in ot_values:
-                    home_team[ot_keys[ot_values.index(ot)]] = ot.strip()
+                    away_team[ot_keys[ot_values.index(ot)]] = ot.strip()
             vs_score_data["away_team"] = away_team
             # print(vs_score_data)
             yield {"item": {"_id": uuid, "data": vs_score_data, "home_team_name": home_team_name, "away_team_name": away_team_name, "start_time": start_time}, "collection": "mn_sports_qq_nba_score"}

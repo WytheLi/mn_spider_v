@@ -7,10 +7,10 @@
 import time
 
 from mn_spider_v import constants
-from mn_spider_v.clients import mongo_conn, mysql_conn, redis_conn
+from mn_spider_v.clients import mongo_conn, mysql_conn
 from mn_spider_v.common import gen_nba_vs_uuid, \
-    save_text_before_game_to_mysql, save_text_after_game_to_mysql, publish_sing_text
-from mn_spider_v.create_text import nba_text_before, nba_text_after
+    save_text_before_game_to_mysql, save_text_after_game_to_mysql, publish_sing_text, publish_text_to_tag_team
+from util.create_text import nba_text_before, nba_text_after
 
 """
 给多个spider指定对应的pipline：
@@ -77,9 +77,15 @@ class NbaVsInfoPipeline(object):
                             if text_before_game:
                                 # 保存赛前文本到mysql
                                 save_text_before_game_to_mysql(item["item"]["_id"], text_before_game, item["item"]["home_team_name"], item["item"]["away_team_name"], item["item"]["start_time"])
-                                # # 发送
-                                # text_before_game = text_before_game.replace("<p>", "").replace("</p>", "\r\n")
-                                # publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_before_game)
+
+                                # 给目标用户发送赛前文本
+                                publish_text_to_tag_team(text_before_game, "76人", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, "凯尔特人", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, "骑士", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, "湖人", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, "老鹰", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, "太阳", item["item"]["home_team_name"], item["item"]["away_team_name"])
+
                 item["item"]["create_time"] = now_time
                 item["item"]["update_time"] = now_time
                 mongo_conn[constants.DB][item["collection"]].insert_one(item["item"])
@@ -106,9 +112,11 @@ class NbaTextPipeline(object):
         """
         保存图文数据, 文本的生成、发布
         1、赛前文本的发布
-            - (条件判断) 当主页面任意一个集合都没有数据，且图文爬虫yield数据时，生成赛前文本，并发送
+            - (条件判断) 当主页面任意一个集合都没有数据，且图文爬虫yield数据时，生成赛前文本
+            - 满足监控队伍，则发送
         2、赛后文本的发布
-            - 当text文档content字段包含“全场比赛结束”时，生成赛后文本，并发送
+            - 当text文档content字段包含“全场比赛结束”时，生成赛后文本
+            - 满足监控队伍，则发送
         3、赛中赛况
             比如76人队
             放置于update_one中
@@ -140,16 +148,22 @@ class NbaTextPipeline(object):
                         mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].update_one({"_id": uuid}, {"$set": {"data": teletext["data"], "update_time": now_time}})
                 else:       # 文档所属于比赛在teletext集合不存在，插入文档
                     ids = [id]
-                    mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "create_time": now_time, "update_time": now_time})
+                    mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "home_team_name": item["home_team_name"], "away_team_name": item["away_team_name"], "create_time": now_time, "update_time": now_time})
             else:   # 文档在text集合中存在，判断其_id值是否也存在于teletext集合
                 # 单条text的判断和发送
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "湖人")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "尼克斯")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "勇士")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "凯尔特人")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "骑士")
                 publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "快船")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "老鹰")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "太阳")
 
                 if id not in teletext["data"]:  # 其_id值不存在于teletext集合，更新集合
                     teletext["data"].append(id)
                     mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].update_one({"_id": uuid}, {"$set": {"data": teletext["data"], "update_time": now_time}})
-            # 当yield text文档content字段包含“全场比赛结束”时，生成赛后文本，并发送
+            # 当yield text文档content字段包含“全场比赛结束”时，生成赛后文本
+            # 满足监控的队伍，则发送
             if data["content"].startswith("全场比赛结束"):
                 with mysql_conn.cursor() as cursor:
                     select_text = """
@@ -163,7 +177,12 @@ class NbaTextPipeline(object):
                         if text_after_game:
                             # save to mysql
                             save_text_after_game_to_mysql(uuid, text_after_game, item["home_team_name"], item["away_team_name"], item["start_time"])
-                            # # 发送
-                            # text_after_game = text_after_game.replace("<p>", "").replace("</p>", "\r\n")
-                            # publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text_after_game)
 
+                            # 给目标用户发送赛后text
+                            publish_text_to_tag_team(text_after_game, "76人", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "湖人", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "快船", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "老鹰", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "太阳", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "凯尔特人", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, "骑士", item["home_team_name"], item["away_team_name"])

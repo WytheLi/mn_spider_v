@@ -340,13 +340,14 @@ def nba_text_after(db, uuid):
     :return:
     """
     # data = db["mn_sports_qq_nba_teletext"].find({"uuid": uuid})["data"]
-    ids = db["mn_sports_qq_nba_teletext"].find_one({"_id": uuid})["data"]
+    teletext = db["mn_sports_qq_nba_teletext"].find_one({"_id": uuid})
+    ids = teletext["data"]
     # print(ids)
     # 将字符串id转换为ObjectId对象
     # ids = list(map(ObjectId, ids))
     data = db["mn_sports_qq_nba_text"].find({"_id": {"$in": ids}})
     vs_score = db["mn_sports_qq_nba_score"].find_one({"_id": uuid})
-    # vs_info_data = db["mn_sports_qq_nba_vs"].find_one({"_id": uuid})["data"]
+    # vs_info = db["mn_sports_qq_nba_vs"].find_one({"_id": uuid})
     vs_pog = db["mn_sports_qq_nba_pog"].find_one({"_id": uuid})
     # vs_count_data = db["mn_sports_qq_nba_count"].find_one({"_id": uuid})["data"]
 
@@ -354,20 +355,19 @@ def nba_text_after(db, uuid):
     if all([data, vs_score, vs_pog]):
         vs_score_dict = vs_score["data"]
         vs_pog_data = vs_pog["data"]
+        # vs_info_data = vs_info["data"]
         data = sorted(data, key=lambda x: x["data"]["sendTime"])
-        text += "<p>"
+        text += "<p>北京时间" + teletext["start_time"] + "给大家直播的NBA常规赛"+teletext["home_team_name"]+"V"+teletext["away_team_name"]+"。"
         # 遍历拼接
         for teletext in data:
-            if not teletext["data"].get("quarter"):     # 赛前推送
+            if not teletext["data"].get("quarter"):     # 首发人员
                 if teletext["data"].get("content"):
                     # if "届时" in teletext["data"].get("content") or "将" in teletext["data"].get("content") or "敬请期待" in teletext["data"].get(
                     #         "content") or "明天" in teletext["data"].get("content"):
                     #     continue
-                    # if "前瞻" in teletext["data"].get("content") or "首发" in teletext["data"].get("content") or "先发" in teletext["data"].get(
-                    #         "content"):
-                    #     continue
-                    # 拼接每条赛前推送的第一句
-                    text += teletext["data"].get("content").split("。")[0]
+                    if "前瞻" in teletext["data"].get("content") or "首发" in teletext["data"].get("content") or "先发" in teletext["data"].get(
+                            "content"):  # 首发人员描述
+                        text += teletext["data"].get("content").split("。")[0]
                 if len(data) > data.index(teletext) + 1:
                     if data[data.index(teletext) + 1]["data"].get("quarter") == "第1节":  # 首段結束
                         text += "<p>比赛开始，"

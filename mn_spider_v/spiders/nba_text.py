@@ -66,7 +66,9 @@ class NbaTextSpider(scrapy.Spider):
     }
 
     def parse(self, response):
-        # print(response.url)
+        print(response.url)
+        if response.text == "textDetail([0,[],""]);":
+            return
         query_string_list = response.url.split("?")[1].split("&")
         # url参数解码
         # from urllib import parse
@@ -74,9 +76,9 @@ class NbaTextSpider(scrapy.Spider):
         start_time = parse.unquote(query_string_list[-3].split("=")[1])
         home_team_name = parse.unquote(query_string_list[-2].split("=")[1])
         away_team_name = parse.unquote(query_string_list[-1].split("=")[1])
-        text_dict = json.loads(response.text[11:-2])[1] if json.loads(response.text[11:-2])[1] else {}
+        text_pagination = json.loads(response.text[11:-2])[1] if json.loads(response.text[11:-2])[1] else {}
         # for id, data in text_dict.items():
-        print(text_dict)
+        print(text_pagination)
         # 图文直播数据请求到的分页数据为倒序
         # {"[id]": {}, "[id]: {}, "[id]": {}}
-        yield {"data": text_dict, "home_team_name": home_team_name, "away_team_name": away_team_name, "start_time": start_time}
+        yield {"data": text_pagination, "home_team_name": home_team_name, "away_team_name": away_team_name, "start_time": start_time}

@@ -6,7 +6,7 @@
 # @Description:
 from celery_tasks import celery_app
 from mn_spider_v.constants import login_user_list
-from mn_spider_v.publish_content import TouTiaoLogin, TouTiaoPosted
+from util.publish_content import TouTiaoLogin, TouTiaoPosted
 
 
 @celery_app.task(name='publish_text')
