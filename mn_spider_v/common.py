@@ -77,7 +77,7 @@ def gen_args_list(keys):
     return temp
 
 
-def publish_sing_text(uuid, id, data, home_team, away_team, tag_team):
+def publish_sing_text(uuid, id, data, home_team, away_team, user):
     """
     给目标用户 发布单条text
     :param uuid: 标记比赛的uuid
@@ -85,41 +85,42 @@ def publish_sing_text(uuid, id, data, home_team, away_team, tag_team):
     :param id: 单条text的id
     :param home_team_name:
     :param away_team_name:
-    :param tag_team: 目标队伍 发布到哪个账号
+    :param user: {"username": "", "password": "", "tag_team": ""}
     :return:
     """
     # 单条图文文本的发布
-    if home_team == tag_team or away_team == tag_team:
+    if home_team == user["tag_team"] or away_team == user["tag_team"]:
         if data.get("plus") and data.get("plus").startswith("+"):
             match_res = re.search("\[.*?\]", data["content"]).group() if re.search("\[.*?\]", data["content"]) else "[]"
             team_name = match_res[1:-1].split(" ")
-            if team_name[0] == tag_team:  # 是目标队得分
+            if team_name[0] == user["tag_team"]:  # 是目标队得分
                 cache_text = redis_conn.get(id)
                 if not cache_text:  # text无缓存
-                    cache_time_node_res = redis_conn.get(tag_team + "_time_node_" + uuid)
+                    cache_time_node_res = redis_conn.get(user["tag_team"] + "_time_node_" + uuid)
                     cache_time_node = cache_time_node_res.decode() if cache_time_node_res else ""
                     now_time = datetime.datetime.now()
                     if not cache_time_node or (now_time - datetime.timedelta(minutes=constants.TIME_LAG)).strftime(
                             "%Y-%m-%d %H:%M:%S") > cache_time_node:
                         # 发送
-                        publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, data["content"])
+                        publish_text.delay(user["username"], user["password"], data["content"])
                         # 缓存时间 缓存text
-                        redis_conn.setex(tag_team + "_time_node_" + uuid, constants.TIME_NODE_EXPIRY, now_time.strftime("%Y-%m-%d %H:%M:%S"))
+                        redis_conn.setex(user["tag_team"] + "_time_node_" + uuid, constants.TIME_NODE_EXPIRY, now_time.strftime("%Y-%m-%d %H:%M:%S"))
                         redis_conn.setex(id, constants.TEXT_EXPIRY, data["content"])  # 将发送的text缓存24小时
                         print("单条发送函数执行...")
 
 
-def publish_text_to_tag_team(text, tag_team, home_team, away_team):
+def publish_text_to_tag_team(text, user, home_team, away_team):
     """
     给目标用户
     发送赛前text/赛后text
-    :param text_before_game:
-    :param home_team_name:
-    :param away_team_name:
+    :param text:
+    :param user: {"username": "", "password": "", "tag_team": ""}
+    :param home_team:
+    :param away_team:
     :return:
     """
-    if home_team == tag_team or away_team == tag_team:
+    if home_team == user["tag_team"] or away_team == user["tag_team"]:
         # 发送
         text = text.replace("<p>", "").replace("</p>", "\r\n")
-        publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, text)
+        publish_text.delay(user["username"], user["password"], text)
         print("赛前text/赛后text发送函数执行...")

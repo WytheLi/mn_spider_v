@@ -79,12 +79,8 @@ class NbaVsInfoPipeline(object):
                                 save_text_before_game_to_mysql(item["item"]["_id"], text_before_game, item["item"]["home_team_name"], item["item"]["away_team_name"], item["item"]["start_time"])
 
                                 # 给目标用户发送赛前文本
-                                publish_text_to_tag_team(text_before_game, "76人", item["item"]["home_team_name"], item["item"]["away_team_name"])
-                                publish_text_to_tag_team(text_before_game, "凯尔特人", item["item"]["home_team_name"], item["item"]["away_team_name"])
-                                publish_text_to_tag_team(text_before_game, "骑士", item["item"]["home_team_name"], item["item"]["away_team_name"])
-                                publish_text_to_tag_team(text_before_game, "湖人", item["item"]["home_team_name"], item["item"]["away_team_name"])
-                                publish_text_to_tag_team(text_before_game, "老鹰", item["item"]["home_team_name"], item["item"]["away_team_name"])
-                                publish_text_to_tag_team(text_before_game, "太阳", item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, constants.user1, item["item"]["home_team_name"], item["item"]["away_team_name"])
+                                publish_text_to_tag_team(text_before_game, constants.user2, item["item"]["home_team_name"], item["item"]["away_team_name"])
 
                 item["item"]["create_time"] = now_time
                 item["item"]["update_time"] = now_time
@@ -151,13 +147,8 @@ class NbaTextPipeline(object):
                     mongo_conn[constants.DB]["mn_sports_qq_nba_teletext"].insert_one({"_id": uuid, "data": ids, "home_team_name": item["home_team_name"], "away_team_name": item["away_team_name"], "start_time": item["start_time"], "create_time": now_time, "update_time": now_time})
             else:   # 文档在text集合中存在，判断其_id值是否也存在于teletext集合
                 # 单条text的判断和发送
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "尼克斯")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "勇士")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "凯尔特人")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "骑士")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "快船")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "老鹰")
-                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], "太阳")
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], constants.user1)
+                publish_sing_text(uuid, id, data, item["home_team_name"], item["away_team_name"], constants.user2)
 
                 if id not in teletext["data"]:  # 其_id值不存在于teletext集合，更新集合
                     teletext["data"].append(id)
@@ -179,10 +170,5 @@ class NbaTextPipeline(object):
                             save_text_after_game_to_mysql(uuid, text_after_game, item["home_team_name"], item["away_team_name"], item["start_time"])
 
                             # 给目标用户发送赛后text
-                            publish_text_to_tag_team(text_after_game, "76人", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "湖人", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "快船", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "老鹰", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "太阳", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "凯尔特人", item["home_team_name"], item["away_team_name"])
-                            publish_text_to_tag_team(text_after_game, "骑士", item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, constants.user1, item["home_team_name"], item["away_team_name"])
+                            publish_text_to_tag_team(text_after_game, constants.user2, item["home_team_name"], item["away_team_name"])

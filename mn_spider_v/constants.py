@@ -53,3 +53,16 @@ TIME_NODE_EXPIRY = 86400
 
 # 单条发送间隔 12分钟
 TIME_LAG = 12
+
+# 目标用户
+user1 = {
+    "username": "18229854080",
+    "password": "Lzw1911@",
+    "tag_name": "湖人"
+}
+
+user2 = {
+    "username": "19901551995",
+    "password": "Fyy19920717",
+    "tag_team": "凯尔特人"
+}
