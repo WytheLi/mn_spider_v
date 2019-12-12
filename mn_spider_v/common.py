@@ -91,13 +91,12 @@ def publish_sing_text(uuid, id, data, home_team, away_team, tag_team):
     # 单条图文文本的发布
     if home_team == tag_team or away_team == tag_team:
         if data.get("plus") and data.get("plus").startswith("+"):
-            match_res = re.search("\[[\u4e00-\u9fa5]*\]", data["content"]).group() if re.search("\[[\u4e00-\u9fa5]*\]",
-                                                                                                data["content"]) else "[]"
+            match_res = re.search("\[.*?\]", data["content"]).group() if re.search("\[.*?\]", data["content"]) else "[]"
             team_name = match_res[1:-1].split(" ")
-            if team_name[0] == tag_team:  # 是76人队得分
+            if team_name[0] == tag_team:  # 是目标队得分
                 cache_text = redis_conn.get(id)
                 if not cache_text:  # text无缓存
-                    cache_time_node_res = redis_conn.get(tag_team + "time_node_" + uuid)
+                    cache_time_node_res = redis_conn.get(tag_team + "_time_node_" + uuid)
                     cache_time_node = cache_time_node_res.decode() if cache_time_node_res else ""
                     now_time = datetime.datetime.now()
                     if not cache_time_node or (now_time - datetime.timedelta(minutes=constants.TIME_LAG)).strftime(
@@ -105,7 +104,7 @@ def publish_sing_text(uuid, id, data, home_team, away_team, tag_team):
                         # 发送
                         publish_text.delay(constants.TT_USERNAME, constants.TT_PASSWORD, data["content"])
                         # 缓存时间 缓存text
-                        redis_conn.setex(tag_team + "time_node_" + uuid, constants.TIME_NODE_EXPIRY, now_time.strftime("%Y-%m-%d %H:%M:%S"))
+                        redis_conn.setex(tag_team + "_time_node_" + uuid, constants.TIME_NODE_EXPIRY, now_time.strftime("%Y-%m-%d %H:%M:%S"))
                         redis_conn.setex(id, constants.TEXT_EXPIRY, data["content"])  # 将发送的text缓存24小时
                         print("单条发送函数执行...")
 

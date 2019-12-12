@@ -34,7 +34,8 @@ if __name__ == "__main__":
     # redis_conn.set("start_time", "2019-10-10")
     # res1 = redis_conn.get("start_time").decode()
     # print(res1)
-    redis_conn.setex("time_node_aaa", 300, "aaaa")
+    # redis_conn.setex("骑士"+"time_node_aaa", 300, "aaaa")
+    print(redis_conn.get("骑士" + "time_node_aaa"))
 
 
     # 列表操作
