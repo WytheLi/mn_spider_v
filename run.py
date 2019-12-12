@@ -14,7 +14,7 @@ from mn_spider_v.clients import redis_conn
 logger = getLogger(__name__)
 
 # 启动celery worker
-os.system("celery -D -A celery_tasks worker -l info -f logs/celery.log")
+# os.system("celery -D -A celery_tasks worker -l info -f logs/celery.log")
 
 while True:
     start_time = redis_conn.get("start_time")

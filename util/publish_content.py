@@ -51,7 +51,7 @@ class ChromeDriver(object):
         from pyvirtualdisplay import Display
         self.display = Display(visible=0, size=(800, 800))
         self.display.start()
-        以下用单例模式创建对象
+        # 以下用单例模式创建对象
         self.driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=self.chrome_options)
         self.wait = WebDriverWait(self.driver, 10)
 
