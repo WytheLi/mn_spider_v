@@ -58,7 +58,7 @@ TIME_LAG = 12
 user1 = {
     "username": "18229854080",
     "password": "Lzw1911@",
-    "tag_name": "湖人"
+    "tag_team": "湖人"
 }
 
 user2 = {
