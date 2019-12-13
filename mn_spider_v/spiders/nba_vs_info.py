@@ -14,7 +14,7 @@ class NbaVsInfoSpider(scrapy.Spider):
     # start_urls = ['http://sports.qq.com/']
     start_time = redis_conn.get("start_time").decode()
     end_time = redis_conn.get("end_time").decode()
-    res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
+    res = mongo_conn[constants.MONGO_DB]["mn_sports_qq_nba_mid"].find(
         {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": end_time}}]})
     # for mid in data:
     #     print(mid["list"])

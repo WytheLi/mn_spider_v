@@ -10,10 +10,10 @@ from pymongo import MongoClient
 
 from mn_spider_v import constants
 
-mongo_conn = MongoClient(host=constants.HOST, port=constants.PORT, username=constants.USERNAME,
-                         password=constants.PASSWORD)
+mongo_conn = MongoClient(host=constants.MONGO_HOST, port=constants.MONGO_PORT, username=constants.MONGO_USERNAME,
+                         password=constants.MONGO_PASSWORD)
 # client = MongoClient(host=config.HOST, port=config.PORT, username=config.USERNAME, password=config.PASSWORD, retryWrites=False)
-db = mongo_conn[constants.DB]
+db = mongo_conn[constants.MONGO_DB]
 
 mysql_conn = pymysql.connect(
     host=constants.MYSQL_HOST,

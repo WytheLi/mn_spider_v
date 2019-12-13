@@ -15,7 +15,7 @@ class NbaTextKeysSpider(scrapy.Spider):
     start_time = redis_conn.get("start_time").decode()
     end_time = redis_conn.get("end_time").decode()
     # 根据mid请求图文所需keys查询参数
-    res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
+    res = mongo_conn[constants.MONGO_DB]["mn_sports_qq_nba_mid"].find(
         {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": end_time}}]})
     urls = []
     if res:

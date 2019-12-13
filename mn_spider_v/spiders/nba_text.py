@@ -20,10 +20,10 @@ class NbaTextSpider(scrapy.Spider):
     new_date_obj = datetime.datetime.strptime(end_time, "%Y-%m-%d") + datetime.timedelta(days=+1)
     new_date_str = datetime.datetime.strftime(new_date_obj, "%Y-%m-%d")
 
-    text_keys_res = mongo_conn[constants.DB]["mn_sports_qq_nba_text_keys"].find(
+    text_keys_res = mongo_conn[constants.MONGO_DB]["mn_sports_qq_nba_text_keys"].find(
         {"$and": [{"start_time": {"$gte": start_time}}, {"start_time": {"$lte": new_date_str}}]})
     # print(type(text_keys_res), isinstance(text_keys_res, Iterator))
-    mid_dict_res = mongo_conn[constants.DB]["mn_sports_qq_nba_mid"].find(
+    mid_dict_res = mongo_conn[constants.MONGO_DB]["mn_sports_qq_nba_mid"].find(
         {"$and": [{"date": {"$gte": start_time}}, {"date": {"$lte": new_date_str}}]})
     # print(type(mid_dict_res), isinstance(mid_dict_res, Iterator))
 

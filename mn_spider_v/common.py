@@ -99,7 +99,7 @@ def publish_sing_text(uuid, id, data, home_team, away_team, user):
                     cache_time_node_res = redis_conn.get(user["username"] + "_time_node_" + uuid)
                     cache_time_node = cache_time_node_res.decode() if cache_time_node_res else ""
                     now_time = datetime.datetime.now()
-                    if not cache_time_node or (now_time - datetime.timedelta(minutes=constants.TIME_LAG)).strftime(
+                    if not cache_time_node or (now_time - datetime.timedelta(minutes=+constants.TIME_LAG)).strftime(
                             "%Y-%m-%d %H:%M:%S") > cache_time_node:
                         # 发送
                         publish_text.delay(user["username"], user["password"], data["content"])

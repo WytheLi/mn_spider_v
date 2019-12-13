@@ -51,6 +51,7 @@ class ChromeDriver(object):
         from pyvirtualdisplay import Display
         self.display = Display(visible=0, size=(800, 800))
         self.display.start()
+
         # 以下用单例模式创建对象
         self.driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=self.chrome_options)
         self.wait = WebDriverWait(self.driver, 10)
@@ -100,16 +101,18 @@ class TouTiaoLogin(object):
                     lambda x: x.find_element_by_xpath(
                         '//div[@class="captcha-container"]//div[contains(@class, "captcha_verify_img--wrapper")]/img[2]')
                 ).get_attribute('src')
-
-                with open('background.png', 'wb') as f:
+                # 时间戳标记下载的匹配图片
+                # TODO 定时脚本自动删除一小时前的缓存图片
+                timestamp = str(time.time())
+                with open(r'match_imgs\background_'+timestamp+'.png', 'wb') as f:
                     resp = requests.get(background_url)
                     f.write(resp.content)
-                with open('slider.png', 'wb') as f:
+                with open(r'match_imgs\slider_'+timestamp+'.png', 'wb') as f:
                     resp = requests.get(slider_url)
                     f.write(resp.content)
                 time.sleep(2)
 
-                distance = self._findfic(target='background.png', template='slider.png')
+                distance = self._findfic(target=r'match_imgs\background_'+timestamp+'.png', template=r'match_imgs\slider_'+timestamp+'.png')
                 # print(distance)
                 # 初始滑块距离边缘 4 px
                 trajectory = self._get_tracks(distance)
@@ -270,13 +273,14 @@ class TouTiaoPosted(object):
         self.chromedriver.driver.find_element_by_class_name('upload-publish').click()
         time.sleep(1)
         print("Posted Successful！")
+        # self.chromedriver.driver.close()
 
 
 if __name__ == "__main__":
-    # user = TouTiaoLogin("18229854080", "Lzw1911@")
-    user = TouTiaoLogin("19901551995", "Fyy19920717")
-    user = TouTiaoLogin("14928623347", "MN7777mn")
+    user = TouTiaoLogin("18229854080", "Lzw1911@")
+    # user = TouTiaoLogin("19901551995", "Fyy19920717")
+    # user = TouTiaoLogin("14928623347", "MN7777mn")
     user.login()
 
     t = TouTiaoPosted(user.chromedriver, user.cookies)
-    t.posted("呼伦贝尔")
+    t.posted("与君歌一曲")

@@ -11,13 +11,20 @@
 # 线上用redis库保存
 
 # mongo
-USERNAME = "root"
-PASSWORD = "Meanergy168"
-HOST = "139.129.229.223"
-PORT = 27017
-# DB = "mn_sports_qq_nba"
-# DB = "db_test"
-DB = "db_test_10"
+# USERNAME = "root"
+# PASSWORD = "Meanergy168"
+# HOST = "139.129.229.223"
+# PORT = 27017
+# # DB = "mn_sports_qq_nba"
+# # DB = "db_test"
+# DB = "db_test_10"
+
+# mongo
+MONGO_USERNAME = "root"
+MONGO_PASSWORD = "Meanergy168"
+MONGO_HOST = "127.0.0.1"
+MONGO_PORT = 27017
+MONGO_DB = "db_test"
 
 # mysql
 MYSQL_USERNAME = "root"
@@ -52,17 +59,17 @@ TEXT_EXPIRY = 86400
 TIME_NODE_EXPIRY = 86400
 
 # 单条发送间隔 12分钟
-TIME_LAG = 12
+TIME_LAG = 6
 
 # 目标用户
 user1 = {
     "username": "18229854080",
     "password": "Lzw1911@",
-    "tag_team": "凯尔特人"
+    "tag_team": "鹈鹕"  # ["凯尔特人"]
 }
 
 user2 = {
     "username": "19901551995",
     "password": "Fyy19920717",
-    "tag_team": "76人"
+    "tag_team": "76人"    # ["76人"]
 }

@@ -55,4 +55,4 @@ while True:
     logger.info("scrapy crawl nba_text")
     os.system("scrapy crawl nba_text")
 
-    time.sleep(60)
+    time.sleep(120)

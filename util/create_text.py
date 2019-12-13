@@ -357,7 +357,7 @@ def nba_text_after(db, uuid):
         vs_pog_data = vs_pog["data"]
         # vs_info_data = vs_info["data"]
         data = sorted(data, key=lambda x: x["data"]["sendTime"])
-        text += "<p>北京时间" + teletext["start_time"] + "给大家直播的NBA常规赛"+teletext["home_team_name"]+"V"+teletext["away_team_name"]+"。"
+        text += "<p>北京时间" + teletext["start_time"] + "给大家直播的NBA常规赛"+teletext["home_team_name"]+"VS"+teletext["away_team_name"]+"。"
         # 遍历拼接
         for teletext in data:
             if not teletext["data"].get("quarter"):     # 首发人员
@@ -370,7 +370,7 @@ def nba_text_after(db, uuid):
                         text += teletext["data"].get("content").split("。")[0]
                 if len(data) > data.index(teletext) + 1:
                     if data[data.index(teletext) + 1]["data"].get("quarter") == "第1节":  # 首段結束
-                        text += "<p>比赛开始，"
+                        text += "</p><p>比赛开始，"
 
             elif teletext["data"].get("quarter") == "第1节":
                 if teletext["data"].get("plus") and teletext["data"].get("plus").startswith("+"):
