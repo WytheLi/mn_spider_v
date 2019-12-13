@@ -20,7 +20,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-
+from mn_spider_v import constants
 from mn_spider_v.constants import CHROMEDRIVER_PATH
 from util.proxy_test import auth
 
@@ -57,7 +57,7 @@ class ChromeDriver(object):
         self.wait = WebDriverWait(self.driver, 10)
 
 
-class TouTiaoLogin(object):
+class TouTiaoLoginUser(object):
     def __init__(self, username, password):
         self.url = "https://sso.toutiao.com/"
         self.username = username
@@ -236,10 +236,12 @@ class TouTiaoLogin(object):
 
 
 class TouTiaoPosted(object):
-    def __init__(self, chromedriver, cookies):
+    def __init__(self, chromedriver, user, content):
         self.url = "https://www.toutiao.com/"
         self.chromedriver = chromedriver
-        self.cookies = cookies
+        self.user = user
+        self.content = content
+        # self.cookies = cookies
 
     def getPureDomainCookies(self):
         """
@@ -248,39 +250,49 @@ class TouTiaoPosted(object):
         :return:
         """
         temp = []
-        for cookie in self.cookies:
+        for cookie in self.user.cookies:
             domain = cookie["domain"]
             if domain == "www.toutiao.com":
                 temp.append(cookie)
         return temp
 
-    def posted(self, content):
+    def posted(self):
         """
         携带cookie去发帖
         :return:
         """
         # 过滤后拿到指定站点的cookies
-        self.cookies = self.getPureDomainCookies()
-        # print(self.cookies)
-        for cookie in self.cookies:
+        self.user.cookies = self.getPureDomainCookies()
+        # print(self.user.cookies)
+        for cookie in self.user.cookies:
             if "expiry" in cookie:
                 del cookie["expiry"]
             self.chromedriver.driver.add_cookie(cookie)
         self.chromedriver.driver.get(self.url)
         self.chromedriver.driver.find_element_by_class_name('title-input').click()
-        self.chromedriver.driver.find_element_by_class_name('title-input').send_keys(content)
+        self.chromedriver.driver.find_element_by_class_name('title-input').send_keys(self.content)
         time.sleep(1)
         self.chromedriver.driver.find_element_by_class_name('upload-publish').click()
         time.sleep(1)
         print("Posted Successful！")
         # self.chromedriver.driver.close()
+        # 发送错误 删除列表用户信息 重新登录发送
+        msg_tip = self.chromedriver.driver.find_element_by_class_name('msg-tip').get_attribute('innerText')
+        if len(msg_tip) != 0:
+            for user in constants.login_user_list:
+                if self.user.username == user.username:
+                    constants.login_user_list.pop(constants.login_user_list.index(user))
+                    user = TouTiaoLoginUser(self.user.username, self.user.password)
+                    user.login()
+                    self.posted()
+                    constants.login_user_list.append(user)
 
 
 if __name__ == "__main__":
-    user = TouTiaoLogin("18229854080", "Lzw1911@")
+    user = TouTiaoLoginUser("18229854080", "Lzw1911@")
     # user = TouTiaoLogin("19901551995", "Fyy19920717")
     # user = TouTiaoLogin("14928623347", "MN7777mn")
     user.login()
 
-    t = TouTiaoPosted(user.chromedriver, user.cookies)
+    t = TouTiaoPosted(user.chromedriver, user)
     t.posted("与君歌一曲")

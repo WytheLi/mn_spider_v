@@ -43,9 +43,9 @@ REDIS_DB = 1
 # 本地win
 # CHROMEDRIVER_PATH = r"C:\Users\WytheLi\Downloads\chromedriver.exe"
 # 本地Ubuntu
-# CHROMEDRIVER_PATH = "/home/wytheli/Desktop/chromedriver"
+CHROMEDRIVER_PATH = "/home/wytheli/Desktop/chromedriver"
 # 线上
-CHROMEDRIVER_PATH = "/root/chromedriver"
+# CHROMEDRIVER_PATH = "/root/chromedriver"
 
 # 头条用户
 TT_USERNAME = "18229854080"
